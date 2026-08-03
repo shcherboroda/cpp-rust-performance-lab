@@ -32,11 +32,17 @@ Arithmetic wraps modulo 2^64 in both languages.
 
 ### Setup outside the timed region
 
-Allocation, input generation, and correctness validation must occur outside the timed region. Warm-up policy is **TBD**.
+Allocation and input generation must occur outside the timed region. Checksum validation occurs after each warm-up and measured traversal, outside the timer interval.
 
 ### Work inside the timed region
 
-Perform only the specified sequential accumulation. Benchmark repetition count and timer are **TBD**.
+Each sample measures exactly one complete sequential accumulation over the input array. Use 5 warm-up traversals followed by 100 measured traversals. C++ uses `std::chrono::steady_clock`; Rust uses `std::time::Instant`. Store each measured duration as an integer number of nanoseconds.
+
+### Initial wall-clock reporting
+
+Sort a copy of the 100 measured durations and report `min_ns`, `p50_ns`, `p90_ns`, `p95_ns`, `max_ns`, and arithmetic `mean_ns`, plus `p50_gib_per_s` and `mean_gib_per_s` from the fixed 8 MiB input size and GiB = 2^30 bytes. Percentiles use nearest rank: for percentile `p` and sample count `N`, access zero-based index `ceil(p * N) - 1`; with 100 samples, p50, p90, and p95 use indices 49, 89, and 94.
+
+This is an initial WSL2 wall-clock sanity baseline, not a final low-latency methodology.
 
 ### Optimization hazards
 
@@ -44,11 +50,7 @@ The initial implementation must not use explicit SIMD, parallelism, unsafe Rust,
 
 ### Open decisions
 
-- Benchmark repetition count: **TBD**.
-- Warm-up policy: **TBD**.
-- Timer: **TBD**.
 - Command-line interface: **TBD**.
-- Result format: **TBD**.
 
 ## 2. Conditional sum
 

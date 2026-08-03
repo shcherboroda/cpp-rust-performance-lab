@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
@@ -7,8 +9,13 @@
 namespace {
 
 constexpr std::size_t kInputLength = 1'048'576;
+constexpr std::size_t kWarmupRuns = 5;
+constexpr std::size_t kMeasuredRuns = 100;
 constexpr std::uint64_t kSeed = 0x123456789ABCDEF0ULL;
 constexpr std::uint64_t kExpectedChecksum = 0x839CD625000CDB7AULL;
+constexpr std::size_t kP50Index = 49;
+constexpr std::size_t kP90Index = 89;
+constexpr std::size_t kP95Index = 94;
 
 class SplitMix64 {
 public:
@@ -48,13 +55,56 @@ int main() {
         values.push_back(generator.next());
     }
 
-    const std::uint64_t checksum = sequential_sum(values);
-    if (checksum != kExpectedChecksum) {
-        std::cerr << "checksum validation failed: expected 0x" << std::hex << kExpectedChecksum
-                  << ", got 0x" << checksum << '\n';
-        return 1;
+    for (std::size_t run = 0; run < kWarmupRuns; ++run) {
+        const std::uint64_t checksum = sequential_sum(values);
+        if (checksum != kExpectedChecksum) {
+            std::cerr << "checksum validation failed: expected 0x" << std::hex << kExpectedChecksum
+                      << ", got 0x" << checksum << '\n';
+            return 1;
+        }
     }
 
+    std::vector<std::uint64_t> durations_ns;
+    durations_ns.reserve(kMeasuredRuns);
+    std::uint64_t checksum = 0;
+    for (std::size_t run = 0; run < kMeasuredRuns; ++run) {
+        const auto start = std::chrono::steady_clock::now();
+        checksum = sequential_sum(values);
+        const auto end = std::chrono::steady_clock::now();
+
+        if (checksum != kExpectedChecksum) {
+            std::cerr << "checksum validation failed: expected 0x" << std::hex << kExpectedChecksum
+                      << ", got 0x" << checksum << '\n';
+            return 1;
+        }
+        durations_ns.push_back(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
+    }
+
+    std::vector<std::uint64_t> sorted_durations = durations_ns;
+    std::sort(sorted_durations.begin(), sorted_durations.end());
+    long double total_ns = 0;
+    for (const std::uint64_t duration_ns : durations_ns) {
+        total_ns += duration_ns;
+    }
+    const long double mean_ns = total_ns / kMeasuredRuns;
+    constexpr long double kInputBytes = kInputLength * sizeof(std::uint64_t);
+    constexpr long double kGiB = 1ULL << 30U;
+    const long double p50_gib_per_s = kInputBytes * 1'000'000'000.0L /
+                                      (kGiB * sorted_durations[kP50Index]);
+    const long double mean_gib_per_s = kInputBytes * 1'000'000'000.0L / (kGiB * mean_ns);
+
+    std::cout << "warmup_runs: " << kWarmupRuns << '\n';
+    std::cout << "sample_count: " << kMeasuredRuns << '\n';
+    std::cout << "min_ns: " << sorted_durations.front() << '\n';
+    std::cout << "p50_ns: " << sorted_durations[kP50Index] << '\n';
+    std::cout << "p90_ns: " << sorted_durations[kP90Index] << '\n';
+    std::cout << "p95_ns: " << sorted_durations[kP95Index] << '\n';
+    std::cout << "max_ns: " << sorted_durations.back() << '\n';
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "mean_ns: " << mean_ns << '\n';
+    std::cout << "p50_gib_per_s: " << p50_gib_per_s << '\n';
+    std::cout << "mean_gib_per_s: " << mean_gib_per_s << '\n';
     std::cout << "checksum decimal: " << std::dec << checksum << '\n';
     std::cout << "checksum hexadecimal: 0x" << std::hex << std::uppercase << checksum << '\n';
     return 0;
