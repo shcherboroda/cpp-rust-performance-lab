@@ -16,7 +16,7 @@ build.ninja
 rules.ninja
 
 # Cargo
-/target/
+target/
 **/*.rs.bk
 
 # IDEs and editors
