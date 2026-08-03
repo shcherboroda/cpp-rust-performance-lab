@@ -1,0 +1,298 @@
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0cac3f7[m
+[1m--- /dev/null[m
+[1m+++ b/.gitignore[m
+[36m@@ -0,0 +1,50 @@[m
+[32m+[m[32m# CMake and local native builds[m
+[32m+[m[32mCMakeCache.txt[m
+[32m+[m[32mCMakeFiles/[m
+[32m+[m[32mcmake_install.cmake[m
+[32m+[m[32mcompile_commands.json[m
+[32m+[m[32mCTestTestfile.cmake[m
+[32m+[m[32mTesting/[m
+[32m+[m[32mbuild/[m
+[32m+[m[32mbuild-*/[m
+[32m+[m[32mcmake-build-*/[m
+[32m+[m
+[32m+[m[32m# Ninja[m
+[32m+[m[32m.ninja_deps[m
+[32m+[m[32m.ninja_log[m
+[32m+[m[32mbuild.ninja[m
+[32m+[m[32mrules.ninja[m
+[32m+[m
+[32m+[m[32m# Cargo[m
+[32m+[m[32m/target/[m
+[32m+[m[32m**/*.rs.bk[m
+[32m+[m
+[32m+[m[32m# IDEs and editors[m
+[32m+[m[32m.idea/[m
+[32m+[m[32m.vscode/[m
+[32m+[m[32m*.code-workspace[m
+[32m+[m[32m*.swp[m
+[32m+[m[32m*.swo[m
+[32m+[m[32m*~[m
+[32m+[m
+[32m+[m[32m# Python caches and virtual environments[m
+[32m+[m[32m__pycache__/[m
+[32m+[m[32m*.py[cod][m
+[32m+[m[32m.pytest_cache/[m
+[32m+[m[32m.mypy_cache/[m
+[32m+[m[32m.ruff_cache/[m
+[32m+[m[32m.venv/[m
+[32m+[m[32mvenv/[m
+[32m+[m
+[32m+[m[32m# Generated benchmark artifacts and local outputs[m
+[32m+[m[32mresults/generated/[m
+[32m+[m[32mresults/local/[m
+[32m+[m[32martifacts/[m
+[32m+[m[32m*.profraw[m
+[32m+[m[32m*.profdata[m
+[32m+[m[32mperf.data[m
+[32m+[m[32mperf.data.*[m
+[32m+[m
+[32m+[m[32m# Platform-local files[m
+[32m+[m[32m.DS_Store[m
+[32m+[m[32mThumbs.db[m
+[1mdiff --git a/README.md b/README.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..fcb5175[m
+[1m--- /dev/null[m
+[1m+++ b/README.md[m
+[36m@@ -0,0 +1,39 @@[m
+[32m+[m[32m# cpp-rust-performance-lab[m
+[32m+[m
+[32m+[m[32mA reproducible research project for studying equivalent C++ and Rust implementations, beginning with small CPU and memory primitives and progressing toward selected low-latency trading-system components.[m
+[32m+[m
+[32m+[m[32m## Goals[m
+[32m+[m
+[32m+[m[32m- Build disciplined performance-engineering practice through controlled experiments.[m
+[32m+[m[32m- Produce results and methodology suitable for GitHub, a résumé, and technical publications.[m
+[32m+[m[32m- Develop foundations that could inform a reusable performance-analysis service.[m
+[32m+[m[32m- Document what is measured, how it is measured, and the limits of each conclusion.[m
+[32m+[m
+[32m+[m[32m## Comparison principles[m
+[32m+[m
+[32m+[m[32m- Treat C++ and Rust as engineering tools, not competitors in a language contest.[m
+[32m+[m[32m- Compare equivalent workloads, inputs, semantics, and correctness checks.[m
+[32m+[m[32m- State compiler, operating-system, machine, build, and runtime configuration with every result.[m
+[32m+[m[32m- Investigate generated code and measurement validity before drawing conclusions.[m
+[32m+[m[32m- Avoid claims that either language is inherently faster.[m
+[32m+[m
+[32m+[m[32m## Planned progression[m
+[32m+[m
+[32m+[m[32m1. CPU and memory primitives: sums, branches, dependency chains, and pointer chasing.[m
+[32m+[m[32m2. Data-structure and concurrency primitives: queues, event dispatch, and memory pools.[m
+[32m+[m[32m3. Trading-oriented components: market-data processing, order books, risk checks, and simplified execution pipelines.[m
+[32m+[m
+[32m+[m[32m## Environment and status[m
+[32m+[m
+[32m+[m[32mThe current development environment is **Ubuntu 26.04 under WSL2**.[m
+[32m+[m
+[32m+[m[32mInitial results will be machine-, compiler-, operating-system-, and configuration-specific; they are not general language-performance claims.[m
+[32m+[m
+[32m+[m[32mCurrent status: **repository bootstrap and benchmark methodology design**.[m
+[32m+[m
+[32m+[m[32m## Layout[m
+[32m+[m
+[32m+[m[32m- `specs/` — workload definitions and measurement methodology.[m
+[32m+[m[32m- `cpp/` — future C++ implementations.[m
+[32m+[m[32m- `rust/` — future Rust implementations.[m
+[32m+[m[32m- `scripts/` — future reproducibility and analysis helpers.[m
+[1mdiff --git a/cpp/.gitkeep b/cpp/.gitkeep[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8b13789[m
+[1m--- /dev/null[m
+[1m+++ b/cpp/.gitkeep[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m
+[1mdiff --git a/rust/.gitkeep b/rust/.gitkeep[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8b13789[m
+[1m--- /dev/null[m
+[1m+++ b/rust/.gitkeep[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m
+[1mdiff --git a/scripts/.gitkeep b/scripts/.gitkeep[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8b13789[m
+[1m--- /dev/null[m
+[1m+++ b/scripts/.gitkeep[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m
+[1mdiff --git a/specs/benchmark_sanity.md b/specs/benchmark_sanity.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9c020ec[m
+[1m--- /dev/null[m
+[1m+++ b/specs/benchmark_sanity.md[m
+[36m@@ -0,0 +1,170 @@[m
+[32m+[m[32m# Benchmark sanity workloads[m
+[32m+[m
+[32m+[m[32mThese preliminary workloads establish a shared methodology for equivalent C++ and Rust experiments. They are not a universal benchmark framework. Every unresolved choice is explicitly marked **TBD**.[m
+[32m+[m
+[32m+[m[32m## 1. Sequential sum[m
+[32m+[m
+[32m+[m[32m### Purpose[m
+[32m+[m
+[32m+[m[32mMeasure a simple contiguous read-and-accumulate workload and validate basic loop, data-layout, and optimization assumptions.[m
+[32m+[m
+[32m+[m[32m### Input[m
+[32m+[m
+[32m+[m[32mA contiguous array of 1,048,576 unsigned 64-bit integers. Generate values with a deterministic SplitMix64 sequence seeded with `0x123456789ABCDEF0`; store each generated 64-bit value directly in the input array. Both implementations must use the same generated input and expected checksum.[m
+[32m+[m
+[32m+[m[32mThe size is large enough to make timer overhead negligible, larger than the CPU caches on the current machine when represented as 64-bit values, and still small enough for quick repeated local runs.[m
+[32m+[m
+[32m+[m[32m### Exact operation[m
+[32m+[m
+[32m+[m[32mStart with an unsigned 64-bit accumulator equal to zero. Visit every input element once in contiguous, increasing index order and update `accumulator = accumulator + value` using wrapping arithmetic.[m
+[32m+[m
+[32m+[m[32m### Output/checksum[m
+[32m+[m
+[32m+[m[32mThe timed function must return the final unsigned 64-bit accumulator. The caller must consume and validate the returned result against the expected checksum so the compiler cannot remove the work.[m
+[32m+[m
+[32m+[m[32m### Overflow semantics[m
+[32m+[m
+[32m+[m[32mArithmetic wraps modulo 2^64 in both languages.[m
+[32m+[m
+[32m+[m[32m### Setup outside the timed region[m
+[32m+[m
+[32m+[m[32mAllocation, input generation, expected-result calculation, and correctness validation must occur outside the timed region. Warm-up policy is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Work inside the timed region[m
+[32m+[m
+[32m+[m[32mPerform only the specified sequential accumulation. Benchmark repetition count and timer are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Optimization hazards[m
+[32m+[m
+[32m+[m[32mThe initial implementation must not use explicit SIMD, parallelism, unsafe Rust, compiler intrinsics, volatile accesses, or manual loop unrolling. Compiler auto-vectorization is allowed but must later be inspected in generated assembly. Dead-code elimination, constant folding, vectorization differences, and accidental inclusion of setup work can invalidate comparison.[m
+[32m+[m
+[32m+[m[32m### Open decisions[m
+[32m+[m
+[32m+[m[32m- Benchmark repetition count: **TBD**.[m
+[32m+[m[32m- Warm-up policy: **TBD**.[m
+[32m+[m[32m- Timer: **TBD**.[m
+[32m+[m[32m- Command-line interface: **TBD**.[m
+[32m+[m[32m- Result format: **TBD**.[m
+[32m+[m
+[32m+[m[32m## 2. Conditional sum[m
+[32m+[m
+[32m+[m[32m### Purpose[m
+[32m+[m
+[32m+[m[32mMeasure a contiguous scan with data-dependent selection while keeping the same correctness contract across implementations.[m
+[32m+[m
+[32m+[m[32m### Input[m
+[32m+[m
+[32m+[m[32mA contiguous numeric sequence and a condition definition, such as a threshold, bit test, or predicate. Element type, distribution, condition, and input size are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Exact operation[m
+[32m+[m
+[32m+[m[32mVisit each element once in increasing index order; add an element to the accumulator only when it satisfies the selected condition. Predicate semantics are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Output/checksum[m
+[32m+[m
+[32m+[m[32mReturn or consume the final conditional accumulator as a checksum. Expected-value construction and validation are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Overflow semantics[m
+[32m+[m
+[32m+[m[32mThe arithmetic and comparison semantics, including behavior for signed values, are **TBD** and must be equivalent.[m
+[32m+[m
+[32m+[m[32m### Setup outside the timed region[m
+[32m+[m
+[32m+[m[32mAllocate and initialize input, choose or generate the condition data distribution, and calculate expected output outside timing. Data-generation reproducibility is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Work inside the timed region[m
+[32m+[m
+[32m+[m[32mPerform only the scan, condition evaluation, selected additions, and minimum required result handoff.[m
+[32m+[m
+[32m+[m[32m### Optimization hazards[m
+[32m+[m
+[32m+[m[32mDead-code elimination, predictable or constant predicates, compiler if-conversion, vectorization, and non-equivalent branch behavior may distort results.[m
+[32m+[m
+[32m+[m[32m### Open decisions[m
+[32m+[m
+[32m+[m[32m- Predicate and element type: **TBD**.[m
+[32m+[m[32m- Match rate and input distribution: **TBD**.[m
+[32m+[m[32m- Whether branchless and branch-oriented variants are separate experiments: **TBD**.[m
+[32m+[m[32m- Repetition, warm-up, and timing policy: **TBD**.[m
+[32m+[m
+[32m+[m[32m## 3. Dependency-chain accumulation[m
+[32m+[m
+[32m+[m[32m### Purpose[m
+[32m+[m
+[32m+[m[32mMeasure a deliberately serial arithmetic dependency chain, separating latency-oriented behavior from independent reduction work.[m
+[32m+[m
+[32m+[m[32m### Input[m
+[32m+[m
+[32m+[m[32mA sequence of numeric values or generated operands. Operand type, sequence length, and initialization pattern are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Exact operation[m
+[32m+[m
+[32m+[m[32mUpdate one accumulator for every operand so each update depends on the preceding accumulator value. The update expression is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Output/checksum[m
+[32m+[m
+[32m+[m[32mReturn or consume the final accumulator and validate it against an expected result. Validation approach is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Overflow semantics[m
+[32m+[m
+[32m+[m[32mThe exact arithmetic operation and its overflow behavior are **TBD**; both implementations must preserve the same semantics.[m
+[32m+[m
+[32m+[m[32m### Setup outside the timed region[m
+[32m+[m
+[32m+[m[32mPrepare operands, initial accumulator state, and expected output outside timing. Any seed selection is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Work inside the timed region[m
+[32m+[m
+[32m+[m[32mPerform the dependency-preserving accumulator updates and minimum required result handoff only.[m
+[32m+[m
+[32m+[m[32m### Optimization hazards[m
+[32m+[m
+[32m+[m[32mDead-code elimination, algebraic reassociation, vectorization, unrolling that changes dependency properties, constant operands, and language-specific overflow assumptions require inspection.[m
+[32m+[m
+[32m+[m[32m### Open decisions[m
+[32m+[m
+[32m+[m[32m- Update expression and operand type: **TBD**.[m
+[32m+[m[32m- Initial accumulator and operand generation: **TBD**.[m
+[32m+[m[32m- Required dependency strength and assembly-inspection criteria: **TBD**.[m
+[32m+[m[32m- Repetition, warm-up, and timing policy: **TBD**.[m
+[32m+[m
+[32m+[m[32m## 4. Pointer chasing[m
+[32m+[m
+[32m+[m[32m### Purpose[m
+[32m+[m
+[32m+[m[32mMeasure dependent memory-access latency through a linked traversal whose next address depends on the current load.[m
+[32m+[m
+[32m+[m[32m### Input[m
+[32m+[m
+[32m+[m[32mA collection of nodes or indices forming a traversal structure. Node representation, count, layout, allocation strategy, and permutation generation are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Exact operation[m
+[32m+[m
+[32m+[m[32mStart from a defined entry point and repeatedly load the next node or index, with each step dependent on the prior result. Traversal length and cycle policy are **TBD**.[m
+[32m+[m
+[32m+[m[32m### Output/checksum[m
+[32m+[m
+[32m+[m[32mReturn or consume the final visited node, index, or a traversal-derived checksum. Correctness validation is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Overflow semantics[m
+[32m+[m
+[32m+[m[32mIf indices or counters participate in the checksum, their arithmetic semantics are **TBD**. Pointer validity and traversal bounds must be equivalent and defined.[m
+[32m+[m
+[32m+[m[32m### Setup outside the timed region[m
+[32m+[m
+[32m+[m[32mAllocate, arrange, and validate the traversal structure; select the entry point; and establish expected output outside timing. Cache-conditioning policy is **TBD**.[m
+[32m+[m
+[32m+[m[32m### Work inside the timed region[m
+[32m+[m
+[32m+[m[32mPerform only the dependent traversal and minimum required result handoff.[m
+[32m+[m
+[32m+[m[32m### Optimization hazards[m
+[32m+[m
+[32m+[m[32mDead-code elimination, traversal simplification, prefetching, allocator and layout differences, cache residency, page placement, and accidental independent loads can change what is measured.[m
+[32m+[m
+[32m+[m[32m### Open decisions[m
+[32m+[m
+[32m+[m[32m- Node versus index representation: **TBD**.[m
+[32m+[m[32m- Data-structure size, layout, and permutation: **TBD**.[m
+[32m+[m[32m- Cache-conditioning and memory-allocation policy: **TBD**.[m
+[32m+[m[32m- Traversal count, warm-up, and timing policy: **TBD**.[m

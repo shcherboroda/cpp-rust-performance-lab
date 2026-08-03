@@ -1,0 +1,50 @@
+# CMake and local native builds
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+build/
+build-*/
+cmake-build-*/
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
+
+# Cargo
+/target/
+**/*.rs.bk
+
+# IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Generated benchmark artifacts and local outputs
+results/generated/
+results/local/
+artifacts/
+*.profraw
+*.profdata
+perf.data
+perf.data.*
+
+# Platform-local files
+.DS_Store
+Thumbs.db
