@@ -1,5 +1,6 @@
 const INPUT_LENGTH: usize = 1_048_576;
 const SEED: u64 = 0x1234_5678_9ABC_DEF0;
+const EXPECTED_CHECKSUM: u64 = 0x839C_D625_000C_DB7A;
 
 struct SplitMix64 {
     state: u64,
@@ -22,22 +23,6 @@ impl SplitMix64 {
     }
 }
 
-fn expected_checksum(values: &[u64]) -> u64 {
-    // Sum halves separately to provide an independent checksum path from the
-    // timed full-width accumulator. The reconstruction is modulo 2^64.
-    let mut low_halves = 0_u64;
-    let mut high_halves = 0_u64;
-    for &value in values {
-        low_halves = low_halves.wrapping_add(value as u32 as u64);
-        high_halves = high_halves.wrapping_add(value >> 32);
-    }
-
-    let low = low_halves & 0xFFFF_FFFF;
-    let carry = low_halves >> 32;
-    let high = high_halves.wrapping_add(carry) & 0xFFFF_FFFF;
-    (high << 32) | low
-}
-
 fn sequential_sum(values: &[u64]) -> u64 {
     let mut accumulator = 0_u64;
     for &value in values {
@@ -53,9 +38,8 @@ fn main() {
         values.push(generator.next());
     }
 
-    let expected = expected_checksum(&values);
     let checksum = sequential_sum(&values);
-    assert_eq!(checksum, expected, "checksum validation failed");
+    assert_eq!(checksum, EXPECTED_CHECKSUM, "checksum validation failed");
 
     println!("checksum decimal: {checksum}");
     println!("checksum hexadecimal: 0x{checksum:016X}");

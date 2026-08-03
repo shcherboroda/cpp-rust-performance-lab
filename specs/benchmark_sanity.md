@@ -14,13 +14,17 @@ A contiguous array of 1,048,576 unsigned 64-bit integers. Generate values with a
 
 The size is large enough to make timer overhead negligible and to exceed the private L1 and L2 cache capacity available to a single core on the current machine, while remaining small enough for quick repeated local runs. The array may still fit within the shared last-level cache, so this workload must not be described as a main-memory benchmark.
 
+### SplitMix64 transition
+
+For each generated value, update `state = (state + 0x9E3779B97F4A7C15) mod 2^64`; set `z = state`; then apply `z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9 mod 2^64`, `z = (z ^ (z >> 27)) * 0x94D049BB133111EB mod 2^64`, and emit `z ^ (z >> 31)`.
+
 ### Exact operation
 
 Start with an unsigned 64-bit accumulator equal to zero. Visit every input element once in contiguous, increasing index order and update `accumulator = accumulator + value` using wrapping arithmetic.
 
 ### Output/checksum
 
-The timed function must return the final unsigned 64-bit accumulator. The caller must consume and validate the returned result against the expected checksum so the compiler cannot remove the work.
+The timed function must return the final unsigned 64-bit accumulator. The fixed expected checksum is `9483690369738398586` (`0x839CD625000CDB7A`). This checksum is a cross-language test vector independently verified by C++, Rust, and Python. The caller must consume and validate the returned result against it so the compiler cannot remove the work.
 
 ### Overflow semantics
 
@@ -28,7 +32,7 @@ Arithmetic wraps modulo 2^64 in both languages.
 
 ### Setup outside the timed region
 
-Allocation, input generation, expected-result calculation, and correctness validation must occur outside the timed region. Warm-up policy is **TBD**.
+Allocation, input generation, and correctness validation must occur outside the timed region. Warm-up policy is **TBD**.
 
 ### Work inside the timed region
 

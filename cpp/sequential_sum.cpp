@@ -8,6 +8,7 @@ namespace {
 
 constexpr std::size_t kInputLength = 1'048'576;
 constexpr std::uint64_t kSeed = 0x123456789ABCDEF0ULL;
+constexpr std::uint64_t kExpectedChecksum = 0x839CD625000CDB7AULL;
 
 class SplitMix64 {
 public:
@@ -28,22 +29,6 @@ private:
     std::uint64_t state_;
 };
 
-[[nodiscard]] std::uint64_t expected_checksum(const std::vector<std::uint64_t>& values) {
-    // Sum halves separately to provide an independent checksum path from the
-    // timed full-width accumulator. The reconstruction is modulo 2^64.
-    std::uint64_t low_halves = 0;
-    std::uint64_t high_halves = 0;
-    for (const std::uint64_t value : values) {
-        low_halves += static_cast<std::uint32_t>(value);
-        high_halves += value >> 32U;
-    }
-
-    const std::uint64_t low = low_halves & 0xFFFFFFFFULL;
-    const std::uint64_t carry = low_halves >> 32U;
-    const std::uint64_t high = (high_halves + carry) & 0xFFFFFFFFULL;
-    return (high << 32U) | low;
-}
-
 [[nodiscard]] std::uint64_t sequential_sum(const std::vector<std::uint64_t>& values) {
     std::uint64_t accumulator = 0;
     for (const std::uint64_t value : values) {
@@ -63,10 +48,9 @@ int main() {
         values.push_back(generator.next());
     }
 
-    const std::uint64_t expected = expected_checksum(values);
     const std::uint64_t checksum = sequential_sum(values);
-    if (checksum != expected) {
-        std::cerr << "checksum validation failed: expected 0x" << std::hex << expected
+    if (checksum != kExpectedChecksum) {
+        std::cerr << "checksum validation failed: expected 0x" << std::hex << kExpectedChecksum
                   << ", got 0x" << checksum << '\n';
         return 1;
     }
