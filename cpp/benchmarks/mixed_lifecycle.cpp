@@ -14,7 +14,8 @@
 #error "select one order-book version"
 #endif
 
-#if defined(LLAB_METRICS_DISABLED) || defined(LLAB_METRICS_CAPTURE)
+#if defined(LLAB_METRICS_DISABLED) || defined(LLAB_METRICS_CAPTURE) ||                             \
+    defined(LLAB_METRICS_SAMPLED)
 #include "llab/metrics.hpp"
 #endif
 
@@ -103,15 +104,30 @@ std::uint64_t run_sample(const std::vector<Event> &events, std::uint64_t &digest
     auto book = make_book();
 #if defined(LLAB_METRICS_CAPTURE)
     llab::metrics::ThreadRing metric_ring(events.size());
+#elif defined(LLAB_METRICS_SAMPLED)
+    constexpr std::size_t metric_sample_mask = 63;
+    llab::metrics::ThreadRing metric_ring((events.size() + metric_sample_mask) /
+                                          (metric_sample_mask + 1));
+    std::size_t metric_sequence = 0;
 #endif
     const auto start = std::chrono::steady_clock::now();
     for (const Event &event : events) {
 #if defined(LLAB_METRICS_DISABLED)
         llab::metrics::Scope<false> metric_scope(nullptr, 0);
+        book.apply(event);
+#elif defined(LLAB_METRICS_SAMPLED)
+        if ((metric_sequence++ & metric_sample_mask) == 0) {
+            llab::metrics::Scope<true> metric_scope(&metric_ring, 1);
+            book.apply(event);
+        } else {
+            book.apply(event);
+        }
 #elif defined(LLAB_METRICS_CAPTURE)
         llab::metrics::Scope<true> metric_scope(&metric_ring, 1);
-#endif
         book.apply(event);
+#else
+        book.apply(event);
+#endif
 #if defined(LLAB_READ_BBO)
         digest ^= fold_bbo(book) + 0x9E3779B97F4A7C15ULL + (digest << 6U) + (digest >> 2U);
 #endif
@@ -120,6 +136,10 @@ std::uint64_t run_sample(const std::vector<Event> &events, std::uint64_t &digest
 #if defined(LLAB_METRICS_CAPTURE)
     if (metric_ring.used() != events.size() || metric_ring.dropped() != 0)
         throw std::runtime_error("metrics capture incomplete");
+#elif defined(LLAB_METRICS_SAMPLED)
+    if (metric_ring.used() != (events.size() + metric_sample_mask) / (metric_sample_mask + 1) ||
+        metric_ring.dropped() != 0)
+        throw std::runtime_error("metrics sampled capture incomplete");
 #endif
     if (book.live_order_count() != 0 || book.best_bid() || book.best_ask())
         throw std::runtime_error("mixed lifecycle did not restore empty book");

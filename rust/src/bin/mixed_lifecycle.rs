@@ -2,6 +2,7 @@ use low_latency_lab_benchmarks::bitmap_backshift_order_book;
 use low_latency_lab_benchmarks::bitmap_ladder_order_book;
 use low_latency_lab_benchmarks::bitmap_packed_order_book;
 use low_latency_lab_benchmarks::dense_ladder_order_book;
+use low_latency_lab_benchmarks::metrics::{ThreadRing, cycle_begin, record_scope};
 use low_latency_lab_benchmarks::order_book;
 use low_latency_lab_benchmarks::parity_order_book;
 use std::{fs::File, io::Write, time::Instant};
@@ -10,6 +11,39 @@ const CYCLES: usize = 8_192;
 const MAXIMUM_LIVE_ORDERS: usize = 32_768;
 const WARMUP_SAMPLES: usize = 10;
 const MEASURED_SAMPLES: usize = 200;
+fn metric_mode() -> u8 {
+    match option_env!("CARGO_BIN_NAME") {
+        Some("bitmap_metrics_disabled_mixed_lifecycle") => 1,
+        Some("bitmap_metrics_capture_mixed_lifecycle") => 2,
+        Some("bitmap_metrics_sampled_mixed_lifecycle") => 3,
+        _ => 0,
+    }
+}
+
+fn metric_ring(mode: u8) -> Option<ThreadRing> {
+    match mode {
+        2 => Some(ThreadRing::with_capacity(CYCLES * 7)),
+        3 => Some(ThreadRing::with_capacity((CYCLES * 7 + 63) / 64)),
+        _ => None,
+    }
+}
+
+macro_rules! apply_with_metrics {
+    ($book:expr, $event:expr, $mode:expr, $ring:expr, $sequence:expr) => {{
+        if $mode == 2 {
+            let begin = cycle_begin();
+            $book.apply($event).unwrap();
+            record_scope($ring.as_mut().unwrap(), 1, begin);
+        } else if $mode == 3 && ($sequence & 63) == 0 {
+            let begin = cycle_begin();
+            $book.apply($event).unwrap();
+            record_scope($ring.as_mut().unwrap(), 1, begin);
+        } else {
+            $book.apply($event).unwrap();
+        }
+        $sequence += 1;
+    }};
+}
 
 #[derive(Clone, Copy)]
 struct LogicalEvent {
@@ -177,9 +211,12 @@ fn run_parity(
 ) -> u128 {
     if dense {
         let mut book = dense_ladder_order_book::OrderBook::new(MAXIMUM_LIVE_ORDERS, 99_873, 256);
+        let metric_mode = metric_mode();
+        let mut ring = metric_ring(metric_mode);
+        let mut metric_sequence = 0;
         let start = Instant::now();
         for &e in events {
-            book.apply(parity_event(e)).unwrap();
+            apply_with_metrics!(book, parity_event(e), metric_mode, ring, metric_sequence);
             if read_bbo {
                 *digest ^=
                     fold_parity_bbo(book.best_bid(), book.best_ask()).wrapping_add(*digest << 1);
@@ -191,9 +228,12 @@ fn run_parity(
         return start.elapsed().as_nanos();
     } else if bitmap {
         let mut book = bitmap_ladder_order_book::OrderBook::new(MAXIMUM_LIVE_ORDERS, 99_873, 256);
+        let metric_mode = metric_mode();
+        let mut ring = metric_ring(metric_mode);
+        let mut metric_sequence = 0;
         let start = Instant::now();
         for &e in events {
-            book.apply(parity_event(e)).unwrap();
+            apply_with_metrics!(book, parity_event(e), metric_mode, ring, metric_sequence);
             if read_bbo {
                 *digest ^=
                     fold_parity_bbo(book.best_bid(), book.best_ask()).wrapping_add(*digest << 1);
@@ -206,9 +246,12 @@ fn run_parity(
     } else if backshift {
         let mut book =
             bitmap_backshift_order_book::OrderBook::new(MAXIMUM_LIVE_ORDERS, 99_873, 256);
+        let metric_mode = metric_mode();
+        let mut ring = metric_ring(metric_mode);
+        let mut metric_sequence = 0;
         let start = Instant::now();
         for &e in events {
-            book.apply(parity_event(e)).unwrap();
+            apply_with_metrics!(book, parity_event(e), metric_mode, ring, metric_sequence);
             if read_bbo {
                 *digest ^=
                     fold_parity_bbo(book.best_bid(), book.best_ask()).wrapping_add(*digest << 1);
@@ -220,9 +263,12 @@ fn run_parity(
         return start.elapsed().as_nanos();
     } else if packed {
         let mut book = bitmap_packed_order_book::OrderBook::new(MAXIMUM_LIVE_ORDERS, 99_873, 256);
+        let metric_mode = metric_mode();
+        let mut ring = metric_ring(metric_mode);
+        let mut metric_sequence = 0;
         let start = Instant::now();
         for &e in events {
-            book.apply(parity_event(e)).unwrap();
+            apply_with_metrics!(book, parity_event(e), metric_mode, ring, metric_sequence);
             if read_bbo {
                 *digest ^=
                     fold_parity_bbo(book.best_bid(), book.best_ask()).wrapping_add(*digest << 1);
@@ -234,9 +280,12 @@ fn run_parity(
         return start.elapsed().as_nanos();
     } else {
         let mut book = parity_order_book::OrderBook::new(MAXIMUM_LIVE_ORDERS);
+        let metric_mode = metric_mode();
+        let mut ring = metric_ring(metric_mode);
+        let mut metric_sequence = 0;
         let start = Instant::now();
         for &e in events {
-            book.apply(parity_event(e)).unwrap();
+            apply_with_metrics!(book, parity_event(e), metric_mode, ring, metric_sequence);
             if read_bbo {
                 *digest ^=
                     fold_parity_bbo(book.best_bid(), book.best_ask()).wrapping_add(*digest << 1);
@@ -282,7 +331,11 @@ pub fn main() {
         _ => panic!("usage: mixed_lifecycle [--raw PATH]"),
     };
     let read_bbo = name.ends_with("_with_bbo");
-    let variant = name.trim_end_matches("_with_bbo");
+    let variant = if name.starts_with("bitmap_metrics_") {
+        "bitmap_mixed_lifecycle"
+    } else {
+        name.trim_end_matches("_with_bbo")
+    };
     let events = trace();
     let mut digest = 0;
     let mut run = || match variant {
