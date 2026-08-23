@@ -1,0 +1,15 @@
+LLBT/1
+# Deterministic parity fixture; prices and quantities are unsigned fixed-point integers.
+A 1001 B 100 10
+A 1002 B 99 20
+A 2001 A 102 15
+C 1001 3
+E 2001 5
+R 1002 1003 B 101 12
+U 1001 B 100 9
+U 2001 A 103 10
+X 2001
+E 1001 9
+A 3001 A 105 7
+U 3002 B 104 11
+EXPECT 3 104 11 105 7 11099791700324595977

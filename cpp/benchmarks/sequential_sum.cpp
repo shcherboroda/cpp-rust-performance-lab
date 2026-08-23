@@ -18,8 +18,9 @@ constexpr std::size_t kP90Index = 89;
 constexpr std::size_t kP95Index = 94;
 
 class SplitMix64 {
-public:
-    explicit SplitMix64(std::uint64_t seed) : state_(seed) {}
+  public:
+    explicit SplitMix64(std::uint64_t seed) : state_(seed) {
+    }
 
     [[nodiscard]] std::uint64_t next() {
         // SplitMix64 transition: state += 0x9E3779B97F4A7C15 (mod 2^64);
@@ -32,11 +33,11 @@ public:
         return z ^ (z >> 31U);
     }
 
-private:
+  private:
     std::uint64_t state_;
 };
 
-[[nodiscard]] std::uint64_t sequential_sum(const std::vector<std::uint64_t>& values) {
+[[nodiscard]] std::uint64_t sequential_sum(const std::vector<std::uint64_t> &values) {
     std::uint64_t accumulator = 0;
     for (const std::uint64_t value : values) {
         accumulator += value;
@@ -44,7 +45,7 @@ private:
     return accumulator;
 }
 
-}  // namespace
+} // namespace
 
 int main() {
     std::vector<std::uint64_t> values;
@@ -90,8 +91,8 @@ int main() {
     const long double mean_ns = total_ns / kMeasuredRuns;
     constexpr long double kInputBytes = kInputLength * sizeof(std::uint64_t);
     constexpr long double kGiB = 1ULL << 30U;
-    const long double p50_gib_per_s = kInputBytes * 1'000'000'000.0L /
-                                      (kGiB * sorted_durations[kP50Index]);
+    const long double p50_gib_per_s =
+        kInputBytes * 1'000'000'000.0L / (kGiB * sorted_durations[kP50Index]);
     const long double mean_gib_per_s = kInputBytes * 1'000'000'000.0L / (kGiB * mean_ns);
 
     std::cout << "warmup_runs: " << kWarmupRuns << '\n';

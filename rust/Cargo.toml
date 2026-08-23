@@ -1,6 +1,98 @@
 [package]
-name = "sequential-sum"
+name = "low-latency-lab-benchmarks"
 version = "0.1.0"
 edition = "2024"
+autobins = false
 
 [dependencies]
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = false
+codegen-units = 16
+panic = "unwind"
+
+[[bin]]
+name = "sequential_sum"
+path = "src/bin/sequential_sum.rs"
+
+[[bin]]
+name = "native_mixed_lifecycle"
+path = "src/bin/native_mixed_lifecycle.rs"
+
+[[bin]]
+name = "parity_mixed_lifecycle"
+path = "src/bin/parity_mixed_lifecycle.rs"
+
+[[bin]]
+name = "dense_mixed_lifecycle"
+path = "src/bin/dense_mixed_lifecycle.rs"
+
+[[bin]]
+name = "bitmap_mixed_lifecycle"
+path = "src/bin/bitmap_mixed_lifecycle.rs"
+
+[[bin]]
+name = "native_mixed_lifecycle_with_bbo"
+path = "src/bin/native_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "parity_mixed_lifecycle_with_bbo"
+path = "src/bin/parity_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "dense_mixed_lifecycle_with_bbo"
+path = "src/bin/dense_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "bitmap_mixed_lifecycle_with_bbo"
+path = "src/bin/bitmap_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "bitmap_backshift_mixed_lifecycle"
+path = "src/bin/bitmap_backshift_mixed_lifecycle.rs"
+
+[[bin]]
+name = "bitmap_backshift_mixed_lifecycle_with_bbo"
+path = "src/bin/bitmap_backshift_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "bitmap_packed_mixed_lifecycle"
+path = "src/bin/bitmap_packed_mixed_lifecycle.rs"
+
+[[bin]]
+name = "bitmap_packed_mixed_lifecycle_with_bbo"
+path = "src/bin/bitmap_packed_mixed_lifecycle_with_bbo.rs"
+
+[[bin]]
+name = "tombstone_order_index_churn"
+path = "src/bin/tombstone_order_index_churn.rs"
+
+[[bin]]
+name = "backshift_order_index_churn"
+path = "src/bin/backshift_order_index_churn.rs"
+
+[[bin]]
+name = "identity_tombstone_order_index_churn"
+path = "src/bin/identity_tombstone_order_index_churn.rs"
+
+[[bin]]
+name = "multiplicative_tombstone_order_index_churn"
+path = "src/bin/multiplicative_tombstone_order_index_churn.rs"
+
+[[bin]]
+name = "feed_sequence_recovery"
+path = "src/bin/feed_sequence_recovery.rs"
+
+[[bin]]
+name = "bitmap_allocation_audit"
+path = "src/bin/bitmap_allocation_audit.rs"
+
+[[bin]]
+name = "bitmap_packed_allocation_audit"
+path = "src/bin/bitmap_packed_allocation_audit.rs"
+
+[[bin]]
+name = "bbo_snapshot_uncontended"
+path = "src/bin/bbo_snapshot_uncontended.rs"

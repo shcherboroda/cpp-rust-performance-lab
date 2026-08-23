@@ -37,6 +37,9 @@ __pycache__/
 venv/
 
 # Generated benchmark artifacts and local outputs
+data/captures/
+data/cache/
+results/raw/
 results/generated/
 results/local/
 artifacts/
