@@ -8,3 +8,4 @@ pub mod fixed_order_index;
 pub mod metrics;
 pub mod order_book;
 pub mod parity_order_book;
+pub mod raw_frame_record;
