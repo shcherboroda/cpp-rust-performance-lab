@@ -52,6 +52,13 @@ through book application. DNS, TLS, sockets, persistence, sleeps, fixtures,
 reporting and validation are outside each timed interval. Allocation audits
 must show zero steady-state allocations.
 
+Before comparing implementations, retain operational distributions for connect,
+subscription acknowledgement, snapshot, first market update, WebSocket RTT,
+frame size, update rate, and **market-update-only** interarrival p50/p95/p99
+and max. Do not combine control frames or the snapshot with update intervals.
+The repeatable live probe is `scripts/probe_bitfinex_r0.js`; its result is a
+feed-health observation, not a language benchmark.
+
 ## Delivery order
 
 1. Binary record reader/writer plus corruption tests in both languages.
