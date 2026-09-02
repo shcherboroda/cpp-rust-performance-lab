@@ -21,6 +21,7 @@ function summary(values) {
         p50: quantile(values, 0.50),
         p95: quantile(values, 0.95),
         p99: quantile(values, 0.99),
+        p999: quantile(values, 0.999),
         max: values.length === 0 ? null : Math.max(...values),
     };
 }
