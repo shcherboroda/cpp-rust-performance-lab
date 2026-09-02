@@ -51,3 +51,8 @@ perf.data.*
 # Platform-local files
 .DS_Store
 Thumbs.db
+
+# Local credentials and developer configuration
+.env
+.env.*
+!.env.example
