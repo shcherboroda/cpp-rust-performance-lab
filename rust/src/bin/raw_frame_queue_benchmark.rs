@@ -8,6 +8,25 @@ use std::time::Instant;
 const EVENTS: u64 = 1_000_000;
 const SAMPLES: usize = 20;
 const PAYLOAD_CAPACITY: usize = 4096;
+const PRODUCER_CPU: usize = 0;
+const CONSUMER_CPU: usize = 2;
+
+fn pin_current_thread(cpu: usize) {
+    // SAFETY: the set is initialized before passing it to the pthread API.
+    unsafe {
+        let mut set: libc::cpu_set_t = std::mem::zeroed();
+        libc::CPU_ZERO(&mut set);
+        libc::CPU_SET(cpu, &mut set);
+        assert_eq!(
+            libc::pthread_setaffinity_np(
+                libc::pthread_self(),
+                std::mem::size_of::<libc::cpu_set_t>(),
+                &set
+            ),
+            0
+        );
+    }
+}
 
 fn rank(values: &mut [f64], percentile: f64) -> f64 {
     values.sort_by(f64::total_cmp);
@@ -19,10 +38,14 @@ fn main() {
     for _ in 0..SAMPLES {
         let queue = Arc::new(RawFrameSpscQueue::new(1024, PAYLOAD_CAPACITY));
         let start = Arc::new(AtomicBool::new(false));
+        let ready = Arc::new(AtomicU64::new(0));
         let consumed = Arc::new(AtomicU64::new(0));
         let producer_queue = Arc::clone(&queue);
         let producer_start = Arc::clone(&start);
+        let producer_ready = Arc::clone(&ready);
         let producer = thread::spawn(move || {
+            pin_current_thread(PRODUCER_CPU);
+            producer_ready.fetch_add(1, Ordering::Release);
             let small = [0xA5_u8; 64];
             let large = [0x5A_u8; 2048];
             while !producer_start.load(Ordering::Acquire) {
@@ -45,8 +68,11 @@ fn main() {
         });
         let consumer_queue = Arc::clone(&queue);
         let consumer_start = Arc::clone(&start);
+        let consumer_ready = Arc::clone(&ready);
         let consumer_count = Arc::clone(&consumed);
         let consumer = thread::spawn(move || {
+            pin_current_thread(CONSUMER_CPU);
+            consumer_ready.fetch_add(1, Ordering::Release);
             let mut out = RawFrameRecord {
                 capture_index: 0,
                 monotonic_ns: 0,
@@ -67,6 +93,9 @@ fn main() {
             }
             consumer_count.store(EVENTS, Ordering::Release);
         });
+        while ready.load(Ordering::Acquire) != 2 {
+            std::hint::spin_loop();
+        }
         let started = Instant::now();
         start.store(true, Ordering::Release);
         producer.join().unwrap();
@@ -77,9 +106,11 @@ fn main() {
     let mut p50 = samples.clone();
     let mut p99 = samples.clone();
     println!(
-        "samples={} events_per_sample={} payload=15x64B+1x2048B p50_ns_per_message={:.3} p99_ns_per_message={:.3}",
+        "samples={} events_per_sample={} producer_cpu={} consumer_cpu={} payload=15x64B+1x2048B p50_ns_per_message={:.3} p99_ns_per_message={:.3}",
         SAMPLES,
         EVENTS,
+        PRODUCER_CPU,
+        CONSUMER_CPU,
         rank(&mut p50, 0.50),
         rank(&mut p99, 0.99)
     );
