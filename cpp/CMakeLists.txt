@@ -129,6 +129,11 @@ add_executable(bitfinex_live_probe benchmarks/bitfinex_live_probe.cpp)
 target_link_libraries(bitfinex_live_probe PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 target_compile_features(bitfinex_live_probe PRIVATE cxx_std_20)
 target_compile_options(bitfinex_live_probe PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(raw_frame_queue_benchmark benchmarks/raw_frame_queue_benchmark.cpp)
+target_include_directories(raw_frame_queue_benchmark PRIVATE include)
+target_compile_features(raw_frame_queue_benchmark PRIVATE cxx_std_20)
+target_compile_options(raw_frame_queue_benchmark PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_features(dense_ladder_order_book_lifecycle PRIVATE cxx_std_20)
 target_compile_options(dense_ladder_order_book_lifecycle PRIVATE -Wall -Wextra -Wpedantic)
 

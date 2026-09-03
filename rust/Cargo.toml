@@ -116,3 +116,7 @@ path = "src/bin/bbo_snapshot_uncontended.rs"
 [[bin]]
 name = "bitfinex_live_probe"
 path = "src/bin/bitfinex_live_probe.rs"
+
+[[bin]]
+name = "raw_frame_queue_benchmark"
+path = "src/bin/raw_frame_queue_benchmark.rs"

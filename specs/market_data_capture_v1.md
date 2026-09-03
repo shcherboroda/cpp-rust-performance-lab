@@ -68,7 +68,8 @@ single stated hypothesis is measured under the stated conditions.
    allocator work and make overload observable. Measure producer-to-consumer
    handoff only, with a fixed frame-size distribution, one pinned producer and
    one pinned consumer, alternating language runs. This component is now
-   implemented; its performance measurement is pending a quiet machine.
+   implemented. The initial two-CPU process-affinity baseline is recorded, but
+   is not accepted as a language comparison until each thread is pinned.
 2. **Recorder isolation:** moving segment writes to the queue consumer prevents
    filesystem latency from blocking WebSocket reception. Measure queue pressure,
    dropped/overflow count (which must remain zero), and network-loop frame
