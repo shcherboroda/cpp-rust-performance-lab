@@ -5,6 +5,10 @@ edition = "2024"
 autobins = false
 
 [dependencies]
+futures-util = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+tokio-tungstenite = { version = "0.28", features = ["rustls-tls-webpki-roots"] }
+rustls = { version = "0.23", features = ["ring"] }
 
 [profile.release]
 opt-level = 3
@@ -108,3 +112,7 @@ path = "src/bin/bitmap_packed_allocation_audit.rs"
 [[bin]]
 name = "bbo_snapshot_uncontended"
 path = "src/bin/bbo_snapshot_uncontended.rs"
+
+[[bin]]
+name = "bitfinex_live_probe"
+path = "src/bin/bitfinex_live_probe.rs"

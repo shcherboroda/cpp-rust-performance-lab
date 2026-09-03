@@ -123,6 +123,12 @@ add_executable(bitmap_backshift_probe_profile benchmarks/bitmap_backshift_probe_
 target_link_libraries(bitmap_backshift_probe_profile PRIVATE llab_bitmap_backshift_order_book)
 target_compile_features(bitmap_backshift_probe_profile PRIVATE cxx_std_20)
 target_compile_options(bitmap_backshift_probe_profile PRIVATE -Wall -Wextra -Wpedantic)
+
+find_package(OpenSSL REQUIRED)
+add_executable(bitfinex_live_probe benchmarks/bitfinex_live_probe.cpp)
+target_link_libraries(bitfinex_live_probe PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_compile_features(bitfinex_live_probe PRIVATE cxx_std_20)
+target_compile_options(bitfinex_live_probe PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_features(dense_ladder_order_book_lifecycle PRIVATE cxx_std_20)
 target_compile_options(dense_ladder_order_book_lifecycle PRIVATE -Wall -Wextra -Wpedantic)
 
