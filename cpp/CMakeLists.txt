@@ -184,6 +184,12 @@ if(BUILD_TESTING)
     target_compile_options(raw_frame_record_test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME raw_frame_record_test COMMAND raw_frame_record_test)
 
+    add_executable(raw_frame_queue_test tests/raw_frame_queue.cpp)
+    target_include_directories(raw_frame_queue_test PRIVATE include)
+    target_compile_features(raw_frame_queue_test PRIVATE cxx_std_20)
+    target_compile_options(raw_frame_queue_test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME raw_frame_queue_test COMMAND raw_frame_queue_test)
+
     add_executable(bitmap_allocation_audit tests/bitmap_allocation_audit.cpp)
     target_link_libraries(bitmap_allocation_audit PRIVATE llab_bitmap_ladder_order_book)
     target_compile_features(bitmap_allocation_audit PRIVATE cxx_std_20)
