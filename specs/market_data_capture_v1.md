@@ -59,6 +59,29 @@ p99.9 and max. Do not combine control frames or the snapshot with update interva
 The repeatable live probe is `scripts/probe_bitfinex_r0.js`; its result is a
 feed-health observation, not a language benchmark.
 
+## Transport improvement hypotheses
+
+This is a finite, evidence-first list. A change is retained only after its
+single stated hypothesis is measured under the stated conditions.
+
+1. **Bounded SPSC handoff:** preallocated queue slots and payload storage avoid
+   allocator work and make overload observable. Measure producer-to-consumer
+   handoff only, with a fixed frame-size distribution, one pinned producer and
+   one pinned consumer, alternating language runs. This component is now
+   implemented; its performance measurement is pending a quiet machine.
+2. **Recorder isolation:** moving segment writes to the queue consumer prevents
+   filesystem latency from blocking WebSocket reception. Measure queue pressure,
+   dropped/overflow count (which must remain zero), and network-loop frame
+   handling separately. Do not adopt it until the required segment publication
+   and failure semantics are implemented.
+3. **Decode handoff:** decoding raw frames after capture should not alter the
+   exact saved bytes. Validate against frozen captures and measure decoding and
+   canonical normalization separately from capture and book application.
+
+No comparison of C++ and Rust uses live-network timing. A benchmark run waits
+when the machine has a competing heavy workload; CPU affinity and all run
+conditions are reported with the result.
+
 ## Delivery order
 
 1. Binary record reader/writer plus corruption tests in both languages.
