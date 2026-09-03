@@ -26,18 +26,24 @@ fn put<T: Into<u64>>(out: &mut Vec<u8>, value: T, n: usize) {
         out.push((value >> (8 * i)) as u8);
     }
 }
-pub fn encode(record: &RawFrameRecord) -> Vec<u8> {
-    let mut out = Vec::with_capacity(HEADER_SIZE + record.payload.len() + 4);
-    put(&mut out, record.capture_index, 8);
-    put(&mut out, record.monotonic_ns, 8);
-    put(&mut out, record.utc_ns as u64, 8);
-    put(&mut out, record.connection_id, 8);
+pub fn encode_into(record: &RawFrameRecord, out: &mut Vec<u8>) {
+    out.clear();
+    out.reserve(HEADER_SIZE + record.payload.len() + 4);
+    put(out, record.capture_index, 8);
+    put(out, record.monotonic_ns, 8);
+    put(out, record.utc_ns as u64, 8);
+    put(out, record.connection_id, 8);
     out.push(record.direction);
     out.push(record.kind);
-    put(&mut out, record.payload.len() as u64, 4);
+    put(out, record.payload.len() as u64, 4);
     out.extend_from_slice(&record.payload);
     let checksum = crc32c(&out);
-    put(&mut out, checksum as u64, 4);
+    put(out, checksum as u64, 4);
+}
+
+pub fn encode(record: &RawFrameRecord) -> Vec<u8> {
+    let mut out = Vec::with_capacity(HEADER_SIZE + record.payload.len() + 4);
+    encode_into(record, &mut out);
     out
 }
 fn get(bytes: &[u8], offset: usize, n: usize) -> u64 {
@@ -82,5 +88,23 @@ mod tests {
         assert_eq!(decode(&b), Some(r));
         b[0] ^= 1;
         assert_eq!(decode(&b), None);
+    }
+
+    #[test]
+    fn reuses_a_caller_owned_output_buffer() {
+        let record = RawFrameRecord {
+            capture_index: 7,
+            monotonic_ns: 9,
+            utc_ns: -1,
+            connection_id: 11,
+            direction: 0,
+            kind: 0,
+            payload: b"[1,2]".to_vec(),
+        };
+        let mut out = Vec::with_capacity(HEADER_SIZE + MAX_PAYLOAD + 4);
+        let allocation = out.as_ptr();
+        encode_into(&record, &mut out);
+        assert_eq!(decode(&out), Some(record));
+        assert_eq!(out.as_ptr(), allocation);
     }
 }

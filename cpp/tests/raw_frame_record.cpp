@@ -11,4 +11,13 @@ int main() {
     bytes[0] ^= 1;
     if (llab::decode_raw_frame(bytes).has_value())
         throw std::runtime_error("raw-frame checksum failed");
+
+    std::vector<std::uint8_t> reusable(llab::raw_frame_header_size + llab::raw_frame_max_payload + 4);
+    reusable.clear();
+    const auto* allocation = reusable.data();
+    llab::encode_raw_frame_into(record, reusable);
+    if (llab::decode_raw_frame(reusable) != std::optional{record})
+        throw std::runtime_error("raw-frame reusable-buffer round trip failed");
+    if (reusable.data() != allocation)
+        throw std::runtime_error("raw-frame encoder allocated despite sufficient capacity");
 }
