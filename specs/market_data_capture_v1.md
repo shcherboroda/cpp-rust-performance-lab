@@ -3,9 +3,8 @@
 ## Source and observed feed
 
 Bitfinex Raw Books `R0` is the initial live source. It is public, requires no
-credentials, and identifies individual orders. Coinbase Exchange `full` is
-deferred because its documented HMAC/passphrase authentication is unavailable
-from the current account interface. Bybit remains a separate L2 source.
+credentials, and identifies individual orders. Bybit is the primary live L2
+source and has a separate aggregate-book capture contract.
 
 On 2026-09-02, a subscription to `wss://api-pub.bitfinex.com/ws/2` with
 `{"event":"subscribe","channel":"book","symbol":"tBTCUSD","prec":"R0","freq":"F0","len":"25"}`

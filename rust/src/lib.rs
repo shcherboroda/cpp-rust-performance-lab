@@ -1,4 +1,7 @@
 pub mod bbo_snapshot;
+pub mod bybit_l2_order_book;
+pub mod bybit_l2_dense_ladder;
+pub mod bybit_l2_ordered_map;
 pub mod bitmap_backshift_order_book;
 pub mod bitmap_ladder_order_book;
 pub mod bitmap_packed_order_book;

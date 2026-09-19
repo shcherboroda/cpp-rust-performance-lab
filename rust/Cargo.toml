@@ -121,3 +121,11 @@ path = "src/bin/bitfinex_live_probe.rs"
 [[bin]]
 name = "raw_frame_queue_benchmark"
 path = "src/bin/raw_frame_queue_benchmark.rs"
+
+[[bin]]
+name = "bybit_l2_live_latency_probe"
+path = "src/bin/bybit_l2_live_latency_probe.rs"
+
+[[bin]]
+name = "bybit_l2_book_benchmark"
+path = "src/bin/bybit_l2_book_benchmark.rs"
