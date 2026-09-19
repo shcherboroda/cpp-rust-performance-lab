@@ -141,6 +141,11 @@ target_link_libraries(bybit_l2_capture PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 target_compile_features(bybit_l2_capture PRIVATE cxx_std_20)
 target_compile_options(bybit_l2_capture PRIVATE -Wall -Wextra -Wpedantic)
 
+add_executable(bybit_l2_feature_extract benchmarks/bybit_l2_feature_extract.cpp)
+target_include_directories(bybit_l2_feature_extract PRIVATE include)
+target_compile_features(bybit_l2_feature_extract PRIVATE cxx_std_20)
+target_compile_options(bybit_l2_feature_extract PRIVATE -Wall -Wextra -Wpedantic)
+
 add_executable(raw_frame_queue_benchmark benchmarks/raw_frame_queue_benchmark.cpp)
 target_include_directories(raw_frame_queue_benchmark PRIVATE include)
 target_compile_features(raw_frame_queue_benchmark PRIVATE cxx_std_20)
@@ -205,6 +210,11 @@ if(BUILD_TESTING)
     target_compile_features(bybit_l2_variants_test PRIVATE cxx_std_20)
     target_compile_options(bybit_l2_variants_test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME bybit_l2_variants_test COMMAND bybit_l2_variants_test)
+
+    add_executable(bybit_l2_labels_test tests/bybit_l2_labels.cpp)
+    target_include_directories(bybit_l2_labels_test PRIVATE include)
+    target_compile_features(bybit_l2_labels_test PRIVATE cxx_std_20)
+    add_test(NAME bybit_l2_labels_test COMMAND bybit_l2_labels_test)
 
     add_executable(bybit_v5_l2_decoder_test tests/bybit_v5_l2_decoder.cpp)
     target_include_directories(bybit_v5_l2_decoder_test PRIVATE include)

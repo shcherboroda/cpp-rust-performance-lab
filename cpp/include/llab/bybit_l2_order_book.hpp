@@ -38,6 +38,12 @@ class OrderBook {
     [[nodiscard]] std::optional<Level> best_bid() const { return !valid_ || bids_.empty() ? std::nullopt : std::optional{bids_.front()}; }
     [[nodiscard]] std::optional<Level> best_ask() const { return !valid_ || asks_.empty() ? std::nullopt : std::optional{asks_.front()}; }
     [[nodiscard]] std::size_t level_count() const noexcept { return bids_.size() + asks_.size(); }
+    [[nodiscard]] Quantity depth_quantity(const Side side, const std::size_t depth) const noexcept {
+        const auto& levels = side == Side::Bid ? bids_ : asks_;
+        Quantity total = 0;
+        for (std::size_t index = 0; index < std::min(depth, levels.size()); ++index) total += levels[index].quantity;
+        return total;
+    }
     [[nodiscard]] std::uint64_t state_digest() const {
         std::uint64_t hash = 14695981039346656037ULL;
         for (const auto* levels : {&bids_, &asks_}) { hash_u64(hash, levels->size()); for (const auto& l : *levels) { hash_u64(hash, l.price); hash_u64(hash, l.quantity); } }
