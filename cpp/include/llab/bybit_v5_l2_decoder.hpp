@@ -101,7 +101,7 @@ inline std::optional<Message> decode(std::string_view payload) {
     result.update_id = parse_u64(data.get<std::string>("u"));
     if (result.update_id == 0) throw std::invalid_argument("zero update id");
     result.sequence = parse_u64(data.get<std::string>("seq", "0"));
-    result.exchange_timestamp_ms = parse_u64(data.get<std::string>("cts", "0"));
+    result.exchange_timestamp_ms = parse_u64(root.get<std::string>("cts", "0"));
     result.topic = root.get<std::string>("topic");
     const bool snapshot = result.kind == MessageKind::Snapshot;
     decode_levels(data.get_child("b"), bybit_l2::Side::Bid, result.bids, result.changes, snapshot);
