@@ -174,7 +174,8 @@ void print_status(const Processor& processor) {
     const auto metrics = processor.metrics.snapshot();
     std::cout << "snapshots=" << metrics.snapshots << " updates=" << metrics.market_updates
               << " controls=" << metrics.control_frames << " valid=" << processor.book.valid()
-              << " levels=" << processor.book.level_count();
+              << " levels=" << processor.book.level_count()
+              << " state_digest=" << processor.book.state_digest();
     if (const auto bid = processor.book.best_bid()) std::cout << " best_bid_1e8=" << bid->price << ':' << bid->quantity;
     if (const auto ask = processor.book.best_ask()) std::cout << " best_ask_1e8=" << ask->price << ':' << ask->quantity;
     std::cout << '\n';

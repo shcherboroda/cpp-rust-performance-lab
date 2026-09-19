@@ -88,6 +88,20 @@ The current JSON adapter is correctness-first and allocating; it is deliberately
 outside book-only benchmarks and is a replacement point for a bounded faster
 parser.
 
+The live program reports a deterministic `state_digest` together with BBO and
+level count. A replay that was captured from the same completed LLFR v2 file
+must produce the same final digest and BBO; that is the operational replay
+oracle before a later feature-extraction layer consumes the book. A malformed
+frame, mismatched topic, update-ID gap, queue overflow or recorder failure
+leaves the capture unpublished (`.partial`) and invalidates the book rather
+than continuing with ambiguous state.
+
+This is deliberately **not** a live performance benchmark: DNS/TLS/WebSocket,
+disk writing and JSON parsing are operational work. Offline component
+benchmarks consume frozen data and isolate the interval they report. The
+current client terminates safely on a disconnect or gap; automatic reconnect
+and resnapshot are a future operational extension, not silently implied.
+
 ## Boundaries
 
 The implemented capture path is raw frames -> bounded queue -> persistent
