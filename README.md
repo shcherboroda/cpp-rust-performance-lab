@@ -93,6 +93,23 @@ Key production-oriented component changes are accompanied by a short design note
 
 Formatting is part of the repository contract: C++ follows [`.clang-format`](.clang-format), Rust follows [`rust/rustfmt.toml`](rust/rustfmt.toml), and [`scripts/check_format.sh`](scripts/check_format.sh) verifies both before review.
 
+## Bybit L2 capture and deterministic replay
+
+The C++ `bybit_l2_capture` tool uses Bybit's public V5 spot feed and needs no
+API key. It records exact application frames to an atomically published LLFR
+v2 file before decoding. Replay uses no network and applies the same snapshot,
+delta, topic and update-ID checks to the L2 book.
+
+```bash
+cmake -S cpp -B build/cpp -DCMAKE_BUILD_TYPE=Release
+cmake --build build/cpp --target bybit_l2_capture -j
+./build/cpp/bybit_l2_capture --max-frames 100 --record data/captures/bybit-btcusdt.llfr
+./build/cpp/bybit_l2_capture --replay data/captures/bybit-btcusdt.llfr
+```
+
+Both commands must report the same `state_digest` and BBO. This is a data
+integrity/replay check, not a comparison of live network latency or disk I/O.
+
 ## Layout
 
 - `specs/` — workload contracts, methodology, and experiment records.
