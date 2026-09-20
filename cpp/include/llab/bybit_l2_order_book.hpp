@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace llab::bybit_l2 {
@@ -38,6 +39,13 @@ class OrderBook {
     [[nodiscard]] std::optional<Level> best_bid() const { return !valid_ || bids_.empty() ? std::nullopt : std::optional{bids_.front()}; }
     [[nodiscard]] std::optional<Level> best_ask() const { return !valid_ || asks_.empty() ? std::nullopt : std::optional{asks_.front()}; }
     [[nodiscard]] std::size_t level_count() const noexcept { return bids_.size() + asks_.size(); }
+    // Valid books expose immutable, price-sorted levels: bids descending, asks ascending.
+    // Invalid books expose an empty span, so callers cannot consume stale state.
+    [[nodiscard]] std::span<const Level> top_levels(const Side side, const std::size_t maximum) const noexcept {
+        if (!valid_) return {};
+        const auto& levels = side == Side::Bid ? bids_ : asks_;
+        return {levels.data(), std::min(maximum, levels.size())};
+    }
     [[nodiscard]] Quantity depth_quantity(const Side side, const std::size_t depth) const noexcept {
         const auto& levels = side == Side::Bid ? bids_ : asks_;
         Quantity total = 0;

@@ -110,6 +110,17 @@ cmake --build build/cpp --target bybit_l2_capture -j
 Both commands must report the same `state_digest` and BBO. This is a data
 integrity/replay check, not a comparison of live network latency or disk I/O.
 
+To create a feature-ready, label-free state corpus from a completed capture:
+
+```bash
+./build/cpp/bybit_l2_state_export data/captures/bybit-btcusdt.llfr data/captures/bybit-state.csv
+```
+
+Each CSV row is one accepted market update with exchange time, update ID, BBO,
+state digest and top-10 levels per side. It is offline export, not a latency
+benchmark. Captures remain local; malformed or incomplete captures are rejected.
+Long-run reconnect reliability, predictive quality, execution and PnL are not proven.
+
 ## Layout
 
 - `specs/` — workload contracts, methodology, and experiment records.

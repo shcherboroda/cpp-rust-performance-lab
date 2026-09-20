@@ -19,6 +19,7 @@ int main() {
     require(replacement.apply_snapshot(1, {{10, 1}}, {{20, 1}}));
     require(replacement.apply_delta(2, {{Side::Ask, 19, 1}, {Side::Ask, 20, 0}}));
     require(replacement.best_ask() == Level{19, 1});
+    require(replacement.top_levels(Side::Bid, 10).size() == 1 && replacement.top_levels(Side::Bid, 1)[0] == Level{10, 1});
     OrderBook atomic_failure(1);
     require(atomic_failure.apply_snapshot(1, {{10, 1}}, {{20, 1}}));
     require(!atomic_failure.apply_delta(2, {{Side::Bid, 10, 0}, {Side::Bid, 9, 1}, {Side::Bid, 8, 1}}));
