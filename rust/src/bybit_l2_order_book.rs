@@ -24,6 +24,13 @@ impl OrderBook {
     pub fn best_bid(&self) -> Option<Level> { self.bids.first().copied() }
     pub fn best_ask(&self) -> Option<Level> { self.asks.first().copied() }
     pub fn level_count(&self) -> usize { self.bids.len() + self.asks.len() }
+    /// Valid books return price-sorted immutable levels: bids descending, asks ascending.
+    /// Invalid books return an empty slice.
+    pub fn top_levels(&self, side: Side, maximum: usize) -> &[Level] {
+        if !self.valid { return &[]; }
+        let levels = if side == Side::Bid { &self.bids } else { &self.asks };
+        &levels[..maximum.min(levels.len())]
+    }
     pub fn state_digest(&self) -> u64 { let mut h = 14_695_981_039_346_656_037; for levels in [&self.bids, &self.asks] { hash(&mut h, levels.len() as u64); for l in levels { hash(&mut h,l.price); hash(&mut h,l.quantity); } } h }
     fn apply_change(&mut self, change: Change) -> bool {
         let levels = if change.side == Side::Bid { &mut self.bids } else { &mut self.asks };

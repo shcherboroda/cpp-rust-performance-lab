@@ -108,3 +108,10 @@ The implemented capture path is raw frames -> bounded queue -> persistent
 capture and Bybit parser -> L2 sequence/snapshot gate -> L2 book. File I/O,
 capture, allocation/reservation, final digest validation, and reporting remain
 outside offline book-application timed regions.
+
+## State export v1
+
+`bybit_l2_state_export CAPTURE.llfr OUTPUT.csv` replays a completed capture and
+writes every accepted snapshot/delta with `cts`, update ID, BBO, state digest
+and top 10 levels. Bids are descending and asks ascending; invalid books expose
+no top-N view. Export is feature-ready corpus generation, never a latency benchmark.
