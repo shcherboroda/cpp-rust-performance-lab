@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -107,6 +108,8 @@ public:
     }
 
     void record(llab::RawFrameRecord record) {
+        std::lock_guard lock(producer_mutex_);
+        if (producer_closed_.load(std::memory_order_acquire)) throw std::runtime_error("capture recorder is closing");
         if (writer_failed_.load(std::memory_order_acquire)) throw std::runtime_error("capture writer failed");
         const llab::RawFrameHeader header{record.capture_index, record.monotonic_ns, record.utc_ns, record.connection_id,
                                           record.direction, record.kind};
@@ -116,16 +119,22 @@ public:
     }
 
     void close() {
-        if (closed_.exchange(true)) return;
-        finalize_.store(true, std::memory_order_release);
-        stop_.store(true, std::memory_order_release);
+        {
+            std::lock_guard lock(producer_mutex_);
+            if (closed_.exchange(true)) return;
+            finalize_.store(true, std::memory_order_release);
+            producer_closed_.store(true, std::memory_order_release);
+        }
         if (worker_.joinable()) worker_.join();
         if (writer_failed_.load(std::memory_order_acquire)) throw std::runtime_error("capture writer failed");
     }
 
     void abort() noexcept {
-        if (closed_.exchange(true)) return;
-        stop_.store(true, std::memory_order_release);
+        {
+            std::lock_guard lock(producer_mutex_);
+            if (closed_.exchange(true)) return;
+            producer_closed_.store(true, std::memory_order_release);
+        }
         if (worker_.joinable()) worker_.join();
     }
 
@@ -139,7 +148,7 @@ private:
                     writer_.append(record);
                     continue;
                 }
-                if (stop_.load(std::memory_order_acquire)) break;
+                if (producer_closed_.load(std::memory_order_acquire)) break;
                 std::this_thread::yield();
             }
             if (finalize_.load(std::memory_order_acquire)) writer_.close();
@@ -147,7 +156,8 @@ private:
     }
     llab::RawFrameSpscQueue queue_;
     llab::RawFrameCaptureWriter writer_;
-    std::atomic<bool> stop_ = false, closed_ = false, finalize_ = false, writer_failed_ = false;
+    std::mutex producer_mutex_;
+    std::atomic<bool> producer_closed_ = false, closed_ = false, finalize_ = false, writer_failed_ = false;
     std::thread worker_;
 };
 
@@ -257,6 +267,7 @@ int live(const Config& config) {
 
 }  // namespace
 
+#ifndef LLAB_BYBIT_CAPTURE_TEST
 int main(int argc, char** argv) {
     try {
         const auto config = parse_config(argc, argv);
@@ -266,3 +277,4 @@ int main(int argc, char** argv) {
         return 1;
     }
 }
+#endif
