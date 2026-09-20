@@ -237,6 +237,12 @@ if(BUILD_TESTING)
     target_compile_options(raw_frame_capture_test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME raw_frame_capture_test COMMAND raw_frame_capture_test)
 
+    add_executable(bybit_async_recorder_test tests/bybit_async_recorder.cpp)
+    target_include_directories(bybit_async_recorder_test PRIVATE include)
+    target_link_libraries(bybit_async_recorder_test PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    target_compile_features(bybit_async_recorder_test PRIVATE cxx_std_20)
+    add_test(NAME bybit_async_recorder_test COMMAND bybit_async_recorder_test)
+
     add_executable(raw_frame_queue_test tests/raw_frame_queue.cpp)
     target_include_directories(raw_frame_queue_test PRIVATE include)
     target_compile_features(raw_frame_queue_test PRIVATE cxx_std_20)
